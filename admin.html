@@ -313,16 +313,17 @@
   import { getFirestore, collection, getDocs, query, orderBy }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  // ====== ⚠ 請填入跟 quiz.html 同一個專案的 Firebase 設定 ======
+  // ====== Firebase 設定 (fortune-d9977) ======
   const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyBVYmES8XBfB_dWyvD5Q-PrjnUhWGTc1SI",
+    authDomain: "fortune-d9977.firebaseapp.com",
+    projectId: "fortune-d9977",
+    storageBucket: "fortune-d9977.firebasestorage.app",
+    messagingSenderId: "489177144988",
+    appId: "1:489177144988:web:4068bbfd0da5801a209759",
+    measurementId: "G-7QTJMQSFT5"
   };
-  // ============================================================
+  // ============================================
 
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
