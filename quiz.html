@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>領袖的自我修養 — 課前 QA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,500;12..96,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF3DC;
+    --paper-deep:#F6E8B8;
+    --cream:#FFF8E1;
+    --honey:#F5C04A;
+    --mustard:#E8A317;
+    --amber:#C77D1A;
+    --ink:#3A2410;
+    --ink-soft:#5C3D1F;
+    --line:#7A5022;
+    --shadow:rgba(170,110,30,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{min-height:100vh}
+  body{
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    background-image:
+      radial-gradient(ellipse 700px 480px at 8% 12%, rgba(245,192,74,.35), transparent 62%),
+      radial-gradient(ellipse 560px 420px at 92% 88%, rgba(232,163,23,.28), transparent 60%),
+      radial-gradient(ellipse 420px 320px at 70% 18%, rgba(255,221,120,.45), transparent 60%),
+      radial-gradient(ellipse 380px 300px at 18% 78%, rgba(199,125,26,.22), transparent 65%);
+    background-attachment:fixed;
+    overflow-x:hidden;
+    position:relative;
+  }
+  body::before{
+    content:"";
+    position:fixed;inset:0;
+    pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.25 0 0 0 0 0.05 0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity:.35;
+    mix-blend-mode:multiply;
+    z-index:1;
+  }
+
+  .filters{position:absolute;width:0;height:0;overflow:hidden}
+
+  /* Top-right cluster: clock + audio */
+  .topbar{
+    position:fixed;
+    top:1.1rem;right:1.2rem;
+    z-index:50;
+    display:flex;align-items:center;gap:.65rem;
+  }
+  .pill{
+    background:rgba(255,248,225,.78);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    border:1.5px solid var(--mustard);
+    box-shadow:0 4px 16px var(--shadow), inset 0 0 0 4px rgba(255,255,255,.4);
+    color:var(--ink);
+    border-radius:999px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .clock{
+    font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif;
+    font-weight:500;
+    font-size:1.25rem;
+    letter-spacing:.05em;
+    padding:.5rem 1.05rem .48rem;
+    font-feature-settings:"tnum";
+  }
+  .audio-btn{
+    width:2.55rem;height:2.55rem;
+    cursor:pointer;
+    transition:transform .2s,box-shadow .2s,background .25s;
+    position:relative;
+    padding:0;
+  }
+  .audio-btn:hover{transform:translateY(-1px);background:rgba(255,221,120,.95)}
+  .audio-btn:active{transform:translateY(1px)}
+  .audio-btn svg{width:1.15rem;height:1.15rem;color:var(--ink);transition:opacity .25s}
+  .audio-btn.playing{
+    background:var(--honey);
+    border-color:var(--amber);
+  }
+  .audio-btn .ic-pause{display:none}
+  .audio-btn.playing .ic-play{display:none}
+  .audio-btn.playing .ic-pause{display:block}
+
+  /* equalizer bars overlay when playing */
+  .audio-btn .eq{
+    position:absolute;
+    inset:0;
+    display:none;
+    align-items:flex-end;justify-content:center;gap:2px;
+    padding-bottom:.55rem;
+    pointer-events:none;
+  }
+  .audio-btn.playing .eq{display:flex}
+  .audio-btn.playing .ic-pause{opacity:0}
+  .audio-btn .eq span{
+    width:3px;background:var(--ink);border-radius:1px;
+    animation:eq 1.1s ease-in-out infinite;
+  }
+  .audio-btn .eq span:nth-child(1){animation-delay:0s}
+  .audio-btn .eq span:nth-child(2){animation-delay:.15s}
+  .audio-btn .eq span:nth-child(3){animation-delay:.3s}
+  .audio-btn .eq span:nth-child(4){animation-delay:.45s}
+  @keyframes eq{
+    0%,100%{height:18%}
+    50%{height:65%}
+  }
+
+  /* audio attention pulse on first load */
+  .audio-btn.attention{animation:attention 1.8s ease-in-out 4}
+  @keyframes attention{
+    0%,100%{box-shadow:0 4px 16px var(--shadow), inset 0 0 0 4px rgba(255,255,255,.4), 0 0 0 0 rgba(245,192,74,.6)}
+    50%{box-shadow:0 4px 16px var(--shadow), inset 0 0 0 4px rgba(255,255,255,.4), 0 0 0 12px rgba(245,192,74,0)}
+  }
+
+  /* main stage */
+  main{
+    position:relative;z-index:2;
+    min-height:100vh;
+    display:flex;align-items:center;justify-content:center;
+    padding:6rem 1.5rem 4rem;
+  }
+  .stage{width:100%;max-width:720px;position:relative}
+
+  .blob{
+    position:absolute;
+    width:120%;height:120%;
+    top:-10%;left:-10%;
+    background:radial-gradient(ellipse at 40% 40%, rgba(255,221,120,.7), rgba(245,192,74,.35) 55%, transparent 75%);
+    filter:url(#watercolor);
+    z-index:-1;
+    border-radius:50%;
+  }
+
+  .page{
+    display:none;
+    animation:rise .7s cubic-bezier(.2,.7,.2,1) both;
+  }
+  .page.active{display:block}
+  @keyframes rise{
+    from{opacity:0;transform:translateY(18px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  .progress{
+    display:flex;gap:.65rem;justify-content:center;
+    margin-bottom:1.75rem;
+  }
+  .progress span{
+    width:.85rem;height:.85rem;border-radius:50%;
+    background:rgba(199,125,26,.22);
+    border:1.5px solid rgba(199,125,26,.4);
+    transition:all .5s ease;
+  }
+  .progress span.done{
+    background:var(--mustard);
+    border-color:var(--amber);
+    box-shadow:0 0 0 4px rgba(245,192,74,.25);
+  }
+  .progress span.current{
+    background:var(--honey);
+    border-color:var(--amber);
+    transform:scale(1.25);
+    box-shadow:0 0 0 6px rgba(245,192,74,.3);
+  }
+
+  /* Intro */
+  .intro-eyebrow{
+    font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif;
+    font-weight:500;
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:.95rem;
+    letter-spacing:.32em;
+    text-transform:uppercase;
+    margin-bottom:1.4rem;
+    opacity:.85;
+  }
+  h1.title{
+    font-weight:900;
+    text-align:center;
+    font-size:clamp(2.4rem,5.6vw,3.4rem);
+    line-height:1.2;
+    letter-spacing:.12em;
+    color:var(--ink);
+    margin-bottom:1.3rem;
+    position:relative;
+  }
+  h1.title::after{
+    content:"";
+    display:block;
+    width:88px;height:6px;
+    margin:1.1rem auto 0;
+    background:var(--mustard);
+    border-radius:999px;
+    filter:url(#watercolor);
+  }
+  .subtitle{
+    text-align:center;
+    font-size:1.05rem;
+    line-height:1.9;
+    color:var(--ink-soft);
+    max-width:520px;
+    margin:0 auto 1.4rem;
+    font-weight:500;
+  }
+  .audio-hint-wrap{text-align:center;margin-bottom:2.4rem}
+  .audio-hint{
+    display:inline-flex;align-items:center;gap:.4rem;
+    text-align:center;
+    font-size:.92rem;
+    color:var(--amber);
+    font-weight:500;
+    background:rgba(255,221,120,.4);
+    padding:.45rem 1rem;
+    border-radius:999px;
+    border:1px dashed var(--amber);
+  }
+  .audio-hint .arrow-up{
+    display:inline-block;
+    animation:nudge 1.6s ease-in-out infinite;
+  }
+  @keyframes nudge{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-3px)}
+  }
+  .name-field{max-width:420px;margin:0 auto 2rem;position:relative}
+  .name-field label{
+    display:block;
+    font-size:.92rem;
+    color:var(--ink-soft);
+    margin-bottom:.55rem;
+    letter-spacing:.15em;
+    font-weight:500;
+  }
+  .name-field label::before{content:"※ ";color:var(--amber)}
+  .name-input{
+    width:100%;
+    background:transparent;
+    border:none;
+    border-bottom:2.5px solid var(--line);
+    padding:.7rem .25rem;
+    font-family:inherit;
+    font-size:1.3rem;
+    font-weight:500;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .3s;
+  }
+  .name-input:focus{border-bottom-color:var(--mustard)}
+  .name-input::placeholder{color:rgba(122,80,34,.4);font-size:1.05rem;font-weight:400}
+
+  /* Button */
+  .btn{
+    display:inline-flex;align-items:center;gap:.55rem;
+    font-family:inherit;
+    font-weight:700;
+    font-size:1.05rem;
+    letter-spacing:.18em;
+    color:var(--ink);
+    background:var(--honey);
+    border:none;
+    padding:.95rem 2.4rem;
+    cursor:pointer;
+    position:relative;
+    border-radius:4px;
+    transition:transform .2s ease,box-shadow .2s ease;
+    box-shadow:0 5px 0 var(--amber),0 8px 24px var(--shadow);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--amber),0 12px 28px var(--shadow)}
+  .btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--amber),0 4px 12px var(--shadow)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:0 5px 0 var(--amber)}
+  .btn-wrap{text-align:center;margin-top:1rem}
+  .btn .arrow{display:inline-block;transition:transform .3s ease}
+  .btn:hover .arrow{transform:translateX(4px)}
+
+  /* Question */
+  .qno{
+    font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif;
+    font-weight:700;
+    font-size:3.4rem;
+    text-align:center;
+    color:var(--amber);
+    line-height:1;
+    margin-bottom:.45rem;
+    letter-spacing:-.02em;
+  }
+  .qno small{
+    font-size:1rem;color:var(--ink-soft);letter-spacing:.18em;font-weight:500;
+    margin-left:.3rem;
+  }
+  .qtext{
+    font-size:1.18rem;
+    line-height:1.85;
+    text-align:center;
+    color:var(--ink);
+    margin:0 auto 2.2rem;
+    max-width:560px;
+    font-weight:500;
+  }
+  .options{display:flex;flex-direction:column;gap:.85rem;max-width:600px;margin:0 auto}
+  .opt{
+    display:flex;align-items:flex-start;gap:1rem;
+    padding:1.05rem 1.3rem;
+    background:rgba(255,248,225,.65);
+    border:2px solid rgba(199,125,26,.28);
+    border-radius:6px;
+    cursor:pointer;
+    text-align:left;
+    font-family:inherit;
+    font-size:1.02rem;
+    font-weight:500;
+    line-height:1.7;
+    color:var(--ink);
+    transition:all .25s ease;
+    backdrop-filter:blur(2px);
+  }
+  .opt:hover{
+    background:rgba(255,221,120,.55);
+    border-color:var(--mustard);
+    transform:translateX(4px);
+  }
+  .opt.selected{
+    background:var(--honey);
+    border-color:var(--amber);
+    box-shadow:0 4px 0 var(--amber),0 8px 20px var(--shadow);
+    transform:translateX(0);
+  }
+  .opt-letter{
+    flex-shrink:0;
+    width:2.2rem;height:2.2rem;
+    border-radius:50%;
+    background:var(--paper-deep);
+    border:1.5px solid var(--amber);
+    display:flex;align-items:center;justify-content:center;
+    font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif;
+    font-weight:700;
+    font-size:1.05rem;
+    color:var(--amber);
+    transition:all .25s;
+  }
+  .opt.selected .opt-letter{background:var(--paper);color:var(--ink);border-color:var(--ink)}
+  .opt-text{flex:1;padding-top:.15rem}
+
+  /* End page */
+  .end-text{
+    font-size:1.05rem;
+    line-height:2.05;
+    color:var(--ink);
+    text-align:center;
+    max-width:560px;
+    margin:0 auto 1.4rem;
+    font-weight:500;
+  }
+  .end-text p{margin-bottom:1.1rem}
+  .end-text p:last-child{margin-bottom:0}
+
+  .check-card{
+    max-width:480px;margin:1.6rem auto 1.4rem;
+    padding:1.6rem 1.5rem;
+    background:rgba(255,248,225,.75);
+    border:2px dashed var(--amber);
+    border-radius:8px;
+    text-align:center;
+  }
+  .check-row{
+    display:flex;align-items:center;justify-content:center;gap:.85rem;
+    cursor:pointer;font-size:1.08rem;font-weight:700;
+    user-select:none;margin-bottom:.9rem;
+  }
+  .check-box{
+    width:1.5rem;height:1.5rem;
+    border:2.5px solid var(--amber);
+    border-radius:4px;
+    background:var(--paper);
+    position:relative;transition:all .2s;flex-shrink:0;
+  }
+  .check-row input{display:none}
+  .check-row input:checked + .check-box{background:var(--mustard);border-color:var(--ink)}
+  .check-row input:checked + .check-box::after{
+    content:"✓";
+    position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink);font-weight:900;font-size:1.05rem;
+  }
+  .event-info{
+    font-size:.95rem;
+    color:var(--ink-soft);
+    line-height:1.85;
+    letter-spacing:.05em;
+    font-weight:500;
+  }
+  .event-info b{color:var(--ink);font-weight:700}
+
+  /* Thank you */
+  .thanks{text-align:center}
+  .thanks-mark{
+    font-family:"Bricolage Grotesque",sans-serif;
+    font-size:5rem;
+    color:var(--amber);
+    line-height:1;
+    margin-bottom:1rem;
+  }
+  .thanks h2{
+    font-size:2rem;font-weight:900;
+    margin-bottom:1.2rem;letter-spacing:.15em;
+  }
+  .thanks p{
+    font-size:1.05rem;line-height:1.85;
+    color:var(--ink-soft);
+    max-width:440px;margin:0 auto;
+    font-weight:500;
+  }
+  .thanks-time{
+    margin-top:2rem;
+    font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif;
+    font-size:1.25rem;
+    color:var(--mustard);
+    letter-spacing:.1em;
+    font-weight:500;
+  }
+
+  .err{color:#a83a1f;font-size:.95rem;text-align:center;margin-top:.8rem;min-height:1.4rem}
+
+  @media(max-width:560px){
+    main{padding:5rem 1rem 3rem}
+    .topbar{top:.8rem;right:.8rem;gap:.45rem}
+    .clock{font-size:1.05rem;padding:.4rem .8rem}
+    .audio-btn{width:2.25rem;height:2.25rem}
+    .audio-btn svg{width:1rem;height:1rem}
+    h1.title{font-size:2.1rem;letter-spacing:.06em}
+    .qno{font-size:2.6rem}
+    .qtext{font-size:1.02rem}
+    .opt{padding:.9rem 1rem;font-size:.98rem;gap:.8rem}
+    .opt-letter{width:1.9rem;height:1.9rem;font-size:.95rem}
+    .btn{padding:.85rem 1.8rem;font-size:.98rem}
+    .audio-hint{font-size:.85rem;padding:.4rem .85rem}
+  }
+</style>
+</head>
+<body>
+
+<svg class="filters" aria-hidden="true">
+  <defs>
+    <filter id="watercolor" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="3" seed="4"/>
+      <feDisplacementMap in="SourceGraphic" scale="14"/>
+    </filter>
+  </defs>
+</svg>
+
+<div class="topbar">
+  <div class="pill clock" id="clock">--:--</div>
+  <button class="pill audio-btn attention" id="audio-btn" aria-label="開啟/關閉背景音樂" title="背景音樂">
+    <svg class="ic-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M9 18V5l12-2v13"/>
+      <circle cx="6" cy="18" r="3"/>
+      <circle cx="18" cy="16" r="3"/>
+    </svg>
+    <svg class="ic-pause" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <rect x="6" y="5" width="4" height="14" rx="1"/>
+      <rect x="14" y="5" width="4" height="14" rx="1"/>
+    </svg>
+    <div class="eq"><span></span><span></span><span></span><span></span></div>
+  </button>
+</div>
+
+<audio id="bgm" loop preload="auto">
+  <source src="bgm.mp3" type="audio/mpeg">
+</audio>
+
+<main>
+  <div class="stage">
+    <div class="blob" aria-hidden="true"></div>
+
+    <!-- Intro -->
+    <section class="page active" id="page-intro">
+      <div class="intro-eyebrow">Inner Cultivation · 2025</div>
+      <h1 class="title">領袖的自我修養</h1>
+      <p class="subtitle">真正的領袖，源於內心的堅定，<br>成於每一次不放棄的突破。</p>
+      <div class="audio-hint-wrap">
+        <span class="audio-hint">
+          <span class="arrow-up">↗</span> 右上角的音符可以開啟背景音樂
+        </span>
+      </div>
+      <div class="name-field">
+        <label for="name">姓名 (必填)</label>
+        <input class="name-input" id="name" type="text" placeholder="請寫下你的名字…" autocomplete="off" />
+      </div>
+      <div class="btn-wrap">
+        <button class="btn" id="btn-start">進入課前 QA <span class="arrow">→</span></button>
+      </div>
+      <div class="err" id="err-name"></div>
+    </section>
+
+    <div id="questions"></div>
+
+    <!-- End -->
+    <section class="page" id="page-end">
+      <div class="progress" id="progress-end"></div>
+      <div class="end-text">
+        <p>今天已經進到這學期的第 12 週，<br>不知道這學期的自己，<br>有沒有符合自己的期待呢？</p>
+        <p>過程中可能飽經風霜，也或許你一切順利，<br>都想在這邊為大家獻上一份溫暖的加油打氣。</p>
+        <p>願我們可以重新在社課當中沉澱下來，<br>讓自己在喧鬧的高壓日常中按下暫停鍵，<br>找回那份最純粹、平靜的自己。</p>
+      </div>
+      <div class="check-card">
+        <label class="check-row">
+          <input type="checkbox" id="attend" />
+          <span class="check-box"></span>
+          <span>我會來參加本週四社課</span>
+        </label>
+        <div class="event-info">
+          <b>5 / 14 (四)</b> · 19:00 – 21:30<br>
+          活動中心 429A
+        </div>
+      </div>
+      <div class="btn-wrap">
+        <button class="btn" id="btn-submit">送出回應 <span class="arrow">↗</span></button>
+      </div>
+      <div class="err" id="err-submit"></div>
+    </section>
+
+    <!-- Thank you -->
+    <section class="page" id="page-thanks">
+      <div class="thanks">
+        <div class="thanks-mark">✦</div>
+        <h2>已收到</h2>
+        <p>願今晚的社課，<br>能成為我們重新沉澱與相聚的時刻。</p>
+        <div class="thanks-time" id="final-time">用時 00:00</div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // ====== ⚠ 請填入你 Firebase 專案的設定 ======
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+  // =============================================
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+  window.__fb = { db, collection, addDoc, serverTimestamp };
+</script>
+
+<script>
+/* ========== 題目資料 ========== */
+const QUESTIONS = [
+  { q:"當你聽到「命運」這個詞時，你直覺上最傾向下列哪一種看法？",
+    o:["人定勝天，命運完全掌握在自己手中。",
+       "三分天註定，七分靠打拚，我先專注在那七分。",
+       "雖然努力有用，但冥冥之中還是有力量左右命運。",
+       "命運是注定好的，我們做的決定會自以為跳離命運，殊不知還在它的手掌心。"]},
+  { q:"面對生活中的挑戰或不順遂時，你通常會怎麼解讀？",
+    o:["我有努力在改變，但目前還看不到效果。",
+       "主要是環境或外在因素造成的，不能控制，我有點無奈。",
+       "每一個挫折都是一份心性的考驗，我會試著面對。",
+       "當我真心想要克服的時候，通常都能辦得到。"]},
+  { q:"對於「善有善報、惡有惡報」這樣的因果觀念，你的真實感受是？",
+    o:["現實世界充滿變數，這種說法是一種心靈安慰。",
+       "有時候準，有時候不準，不是絕對的運作法則。",
+       "大致認同，善意與好的出發點最終會帶來正向的循環。",
+       "深信不疑，認為每一個行為，都會產生相應的結果。"]},
+  { q:"對於「潛意識」的存在，你的看法是？",
+    o:["不太相信，我覺得人主要還是憑理性與意志在做決定，潛意識的影響有限。",
+       "過去心理學家常提到，雖然目前沒什麼明顯感受，但不排斥這個說法。",
+       "我相信有這個東西，也可能影響著我，但我還不清楚運作機制。",
+       "深信不疑，那些我們自己都沒察覺的習慣與反應，才是真正在決定人生走向的東西。"]},
+  { q:"對於「靈性」的存在，你的看法是？",
+    o:["不太相信，要相信科學驗證與肉眼可見的物質世界。",
+       "抱持開放態度，雖然目前沒什麼特別的感覺，但不排斥這種說法。",
+       "相信它的存在，覺得在某些安靜或觸動的時刻，能感受到更高層次的自己。",
+       "深信不疑，我認為靈性才是生命的本質，引導著我們的潛意識與命運。"]}
+];
+
+const TOTAL = QUESTIONS.length;
+const answers = new Array(TOTAL).fill(null);
+let userName = "";
+let startTime = null;
+let endTime = null;
+
+/* ========== 右上角時鐘 ========== */
+const clockEl = document.getElementById("clock");
+function updateClock(){
+  const d = new Date();
+  clockEl.textContent =
+    String(d.getHours()).padStart(2,"0") + ":" +
+    String(d.getMinutes()).padStart(2,"0");
+}
+updateClock();
+setInterval(updateClock, 15000);
+
+/* ========== 背景音樂 ========== */
+const bgm = document.getElementById("bgm");
+const audioBtn = document.getElementById("audio-btn");
+bgm.volume = 0.55;
+
+audioBtn.addEventListener("click", async () => {
+  audioBtn.classList.remove("attention");
+  try{
+    if(bgm.paused){
+      await bgm.play();
+      audioBtn.classList.add("playing");
+    } else {
+      bgm.pause();
+      audioBtn.classList.remove("playing");
+    }
+  } catch(e){
+    console.warn("audio play failed:", e);
+  }
+});
+bgm.addEventListener("play",  () => audioBtn.classList.add("playing"));
+bgm.addEventListener("pause", () => audioBtn.classList.remove("playing"));
+bgm.addEventListener("ended", () => audioBtn.classList.remove("playing"));
+
+/* ========== 建立題目頁 ========== */
+const qContainer = document.getElementById("questions");
+QUESTIONS.forEach((q, i) => {
+  const sec = document.createElement("section");
+  sec.className = "page";
+  sec.id = `page-q${i}`;
+  sec.innerHTML = `
+    <div class="progress"></div>
+    <div class="qno">${String(i+1).padStart(2,"0")}<small>/ 05</small></div>
+    <p class="qtext">${q.q}</p>
+    <div class="options">
+      ${q.o.map((t,j)=>{
+        const L = "ABCD"[j];
+        return `<button class="opt" data-q="${i}" data-a="${L}">
+          <span class="opt-letter">${L}</span>
+          <span class="opt-text">${t}</span>
+        </button>`;
+      }).join("")}
+    </div>
+  `;
+  qContainer.appendChild(sec);
+});
+
+function progressHTML(activeIdx){
+  let h = "";
+  for(let i=0;i<TOTAL;i++){
+    let cls = "";
+    if(i < activeIdx) cls = "done";
+    else if(i === activeIdx) cls = "current";
+    h += `<span class="${cls}"></span>`;
+  }
+  return h;
+}
+
+function showPage(idx){
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  if(idx === -1) document.getElementById("page-intro").classList.add("active");
+  else if(idx < TOTAL){
+    const page = document.getElementById(`page-q${idx}`);
+    page.querySelector(".progress").innerHTML = progressHTML(idx);
+    page.querySelectorAll(".opt").forEach(b=>{
+      b.classList.toggle("selected", b.dataset.a === answers[idx]);
+    });
+    page.classList.add("active");
+  } else if(idx === TOTAL){
+    document.getElementById("progress-end").innerHTML = progressHTML(TOTAL);
+    document.getElementById("page-end").classList.add("active");
+  } else {
+    document.getElementById("page-thanks").classList.add("active");
+  }
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+/* ========== 開始 ========== */
+document.getElementById("btn-start").addEventListener("click", () => {
+  const v = document.getElementById("name").value.trim();
+  if(!v){
+    document.getElementById("err-name").textContent = "請先寫下你的名字 ✎";
+    return;
+  }
+  userName = v;
+  startTime = Date.now();
+  showPage(0);
+});
+document.getElementById("name").addEventListener("input", () => {
+  document.getElementById("err-name").textContent = "";
+});
+document.getElementById("name").addEventListener("keydown", e => {
+  if(e.key === "Enter") document.getElementById("btn-start").click();
+});
+
+/* ========== 點選答案 → 自動下一題 ========== */
+document.querySelectorAll(".opt").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const qi = parseInt(btn.dataset.q, 10);
+    answers[qi] = btn.dataset.a;
+    btn.parentElement.querySelectorAll(".opt").forEach(b=>b.classList.remove("selected"));
+    btn.classList.add("selected");
+    setTimeout(() => showPage(qi+1 >= TOTAL ? TOTAL : qi+1), 380);
+  });
+});
+
+/* ========== 送出 ========== */
+function fmtDur(ms){
+  const s = Math.floor(ms/1000);
+  return `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
+}
+document.getElementById("btn-submit").addEventListener("click", async () => {
+  const btn = document.getElementById("btn-submit");
+  const errEl = document.getElementById("err-submit");
+  errEl.textContent = "";
+  btn.disabled = true;
+  btn.innerHTML = '送出中… <span class="arrow">…</span>';
+
+  endTime = Date.now();
+  const payload = {
+    name: userName,
+    answers: answers.slice(),
+    attending: document.getElementById("attend").checked,
+    duration_ms: endTime - startTime,
+    started_at: new Date(startTime).toISOString(),
+    submitted_at: window.__fb.serverTimestamp(),
+    ua: navigator.userAgent.slice(0,160)
+  };
+
+  try {
+    const { db, collection, addDoc } = window.__fb;
+    await addDoc(collection(db, "responses"), payload);
+    document.getElementById("final-time").textContent = `用時 ${fmtDur(endTime - startTime)}`;
+    showPage(TOTAL + 1);
+  } catch (e) {
+    console.error(e);
+    errEl.textContent = "送出失敗，請檢查網路後再試一次。(" + (e.code || e.message) + ")";
+    btn.disabled = false;
+    btn.innerHTML = '送出回應 <span class="arrow">↗</span>';
+  }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>領袖的自我修養 — 管理後台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,500;12..96,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF3DC;
+    --paper-deep:#F6E8B8;
+    --cream:#FFF8E1;
+    --honey:#F5C04A;
+    --mustard:#E8A317;
+    --amber:#C77D1A;
+    --ink:#3A2410;
+    --ink-soft:#5C3D1F;
+    --line:#7A5022;
+    --shadow:rgba(170,110,30,.18);
+    --A:#E8A317; --B:#D27D2A; --C:#A35A1F; --D:#6B3A12;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    background-image:
+      radial-gradient(ellipse 700px 480px at 8% 12%, rgba(245,192,74,.3), transparent 62%),
+      radial-gradient(ellipse 560px 420px at 92% 88%, rgba(232,163,23,.22), transparent 60%),
+      radial-gradient(ellipse 420px 320px at 70% 18%, rgba(255,221,120,.35), transparent 60%);
+    background-attachment:fixed;
+    min-height:100vh;position:relative;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.25 0 0 0 0 0.05 0 0 0 0.15 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity:.3;mix-blend-mode:multiply;z-index:1;
+  }
+  .filters{position:absolute;width:0;height:0}
+
+  /* clock */
+  .clock{
+    position:fixed;top:1.1rem;right:1.2rem;z-index:50;
+    font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif;
+    font-weight:500;font-size:1.15rem;letter-spacing:.05em;
+    background:rgba(255,248,225,.78);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    padding:.5rem 1rem;border-radius:999px;
+    border:1.5px solid var(--mustard);
+    box-shadow:0 4px 16px var(--shadow);
+    color:var(--ink);
+    font-feature-settings:"tnum";
+  }
+
+  main{position:relative;z-index:2;max-width:1100px;margin:0 auto;padding:4rem 1.5rem 5rem}
+
+  header.hero{margin-bottom:3rem;text-align:center}
+  .eyebrow{
+    font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif;
+    font-weight:500;
+    color:var(--ink-soft);font-size:.95rem;letter-spacing:.32em;
+    text-transform:uppercase;margin-bottom:1rem;opacity:.85;
+  }
+  h1{
+    font-weight:900;
+    font-size:clamp(2.2rem,5vw,3rem);letter-spacing:.12em;
+  }
+  h1::after{
+    content:"";display:block;width:72px;height:5px;
+    margin:1rem auto 0;background:var(--mustard);border-radius:999px;
+    filter:url(#wc);
+  }
+  .sub{margin-top:.9rem;color:var(--ink-soft);font-size:1rem;letter-spacing:.05em;font-weight:500}
+
+  /* gate */
+  .gate{
+    max-width:380px;margin:6rem auto;padding:2.4rem 2rem;
+    background:rgba(255,248,225,.85);
+    border:2px solid var(--amber);
+    border-radius:8px;
+    text-align:center;
+    box-shadow:0 8px 30px var(--shadow);
+  }
+  .gate label{display:block;font-size:.9rem;color:var(--ink-soft);margin-bottom:.55rem;letter-spacing:.15em;font-weight:500}
+  .gate input{
+    width:100%;padding:.7rem .9rem;font-family:inherit;font-size:1.1rem;font-weight:500;
+    border:none;border-bottom:2.5px solid var(--line);background:transparent;
+    outline:none;color:var(--ink);margin-bottom:1.4rem;
+  }
+  .gate input:focus{border-bottom-color:var(--mustard)}
+  .btn{
+    display:inline-flex;align-items:center;gap:.5rem;
+    font-family:inherit;font-weight:700;font-size:1rem;letter-spacing:.15em;
+    color:var(--ink);background:var(--honey);border:none;
+    padding:.75rem 1.7rem;cursor:pointer;border-radius:4px;
+    box-shadow:0 4px 0 var(--amber),0 6px 18px var(--shadow);
+    transition:transform .2s,box-shadow .2s;
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--amber),0 10px 22px var(--shadow)}
+  .btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--amber)}
+  .btn.ghost{
+    background:transparent;color:var(--ink);
+    border:1.5px solid var(--amber);
+    box-shadow:none;
+  }
+  .btn.ghost:hover{background:rgba(245,192,74,.2);transform:none;box-shadow:none}
+
+  /* summary cards */
+  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.2rem;margin-bottom:3rem}
+  .card{
+    background:rgba(255,248,225,.7);
+    border:2px solid rgba(199,125,26,.32);
+    border-radius:8px;
+    padding:1.4rem 1.5rem;
+    position:relative;
+    backdrop-filter:blur(2px);
+  }
+  .card::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:5px;
+    background:var(--mustard);border-radius:8px 8px 0 0;
+    filter:url(#wc);
+  }
+  .card .k{font-size:.8rem;color:var(--ink-soft);letter-spacing:.18em;margin-bottom:.4rem;text-transform:uppercase;font-weight:500}
+  .card .v{
+    font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif;
+    font-weight:700;
+    font-size:2.6rem;line-height:1;color:var(--ink);
+    letter-spacing:-.01em;
+  }
+  .card .v small{font-size:1rem;color:var(--ink-soft);font-weight:500;margin-left:.3rem;letter-spacing:.05em}
+
+  section.block{
+    background:rgba(255,248,225,.55);
+    border:2px solid rgba(199,125,26,.28);
+    border-radius:8px;
+    padding:1.8rem 1.7rem;
+    margin-bottom:2rem;
+  }
+  section.block h2{
+    font-size:1.3rem;font-weight:900;
+    letter-spacing:.12em;margin-bottom:1.2rem;
+    display:flex;align-items:baseline;justify-content:space-between;
+    gap:1rem;flex-wrap:wrap;
+  }
+  section.block h2 small{
+    font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif;
+    font-weight:500;
+    font-size:.95rem;color:var(--ink-soft);letter-spacing:.12em;
+    text-transform:uppercase;
+  }
+
+  .qstat{margin-bottom:1.6rem;padding-bottom:1.4rem;border-bottom:1px dashed rgba(199,125,26,.35)}
+  .qstat:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .qstat .qt{
+    font-size:1rem;line-height:1.6;color:var(--ink);font-weight:700;
+    margin-bottom:1rem;
+  }
+  .qstat .qt .qnum{
+    font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif;
+    font-weight:700;
+    color:var(--amber);margin-right:.5rem;font-size:1.1rem;
+  }
+  .bars{display:flex;flex-direction:column;gap:.55rem}
+  .bar-row{display:flex;align-items:center;gap:.85rem;font-size:.95rem}
+  .bar-letter{
+    width:1.7rem;height:1.7rem;border-radius:50%;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif;
+    font-weight:700;
+    color:#fff;font-size:.9rem;
+  }
+  .bar-letter.A{background:var(--A)}
+  .bar-letter.B{background:var(--B)}
+  .bar-letter.C{background:var(--C)}
+  .bar-letter.D{background:var(--D)}
+  .bar-text{flex:1;min-width:0;color:var(--ink-soft);font-size:.85rem;line-height:1.4;font-weight:500}
+  .bar-wrap{
+    flex:0 0 50%;height:1.3rem;
+    background:rgba(199,125,26,.12);border-radius:4px;
+    overflow:hidden;position:relative;
+  }
+  .bar-fill{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.2,.7,.2,1)}
+  .bar-fill.A{background:var(--A)}
+  .bar-fill.B{background:var(--B)}
+  .bar-fill.C{background:var(--C)}
+  .bar-fill.D{background:var(--D)}
+  .bar-pct{flex:0 0 4.5rem;text-align:right;font-family:"JetBrains Mono",monospace;font-size:.9rem;color:var(--ink);font-weight:500}
+
+  .attendees{display:flex;flex-wrap:wrap;gap:.55rem}
+  .chip{
+    background:var(--honey);color:var(--ink);
+    border:1.5px solid var(--amber);
+    padding:.45rem .9rem;border-radius:999px;
+    font-size:.95rem;font-weight:700;
+  }
+
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:.95rem}
+  th,td{padding:.65rem .8rem;text-align:left;border-bottom:1px dashed rgba(199,125,26,.3)}
+  th{
+    font-weight:900;letter-spacing:.1em;font-size:.8rem;
+    color:var(--ink-soft);text-transform:uppercase;
+    border-bottom:2px solid var(--amber);
+  }
+  td.ans{
+    font-family:"Bricolage Grotesque","Noto Sans TC",sans-serif;
+    font-weight:700;
+    font-size:1.05rem;text-align:center;color:var(--ink);
+  }
+  td.ans.A{color:var(--A)}
+  td.ans.B{color:var(--B)}
+  td.ans.C{color:var(--C)}
+  td.ans.D{color:var(--D)}
+  td.attend{font-size:1.2rem;text-align:center}
+  td.time,td.dur{font-family:"JetBrains Mono",monospace;font-size:.85rem;color:var(--ink-soft)}
+  td b{font-weight:700}
+
+  .toolbar{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+  .empty{text-align:center;padding:3rem 1rem;color:var(--ink-soft);font-weight:500}
+  .loading{text-align:center;padding:4rem 1rem;color:var(--ink-soft);font-size:1.1rem;font-weight:500}
+  .err{color:#a83a1f;text-align:center;margin-top:1rem}
+
+  @media(max-width:640px){
+    main{padding:3rem 1rem 4rem}
+    .bar-wrap{flex:0 0 35%}
+    .bar-text{display:none}
+  }
+</style>
+</head>
+<body>
+
+<svg class="filters" aria-hidden="true">
+  <defs>
+    <filter id="wc" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="3" seed="3"/>
+      <feDisplacementMap in="SourceGraphic" scale="10"/>
+    </filter>
+  </defs>
+</svg>
+
+<div class="clock" id="clock">--:--</div>
+
+<main>
+  <header class="hero">
+    <div class="eyebrow">Admin · Inner Cultivation</div>
+    <h1>領袖的自我修養</h1>
+    <div class="sub">課前 QA 管理後台</div>
+  </header>
+
+  <div id="gate" class="gate">
+    <label>輸入管理密碼</label>
+    <input id="pw" type="password" placeholder="••••••" autocomplete="off" />
+    <button class="btn" id="pw-go">進入後台</button>
+    <div class="err" id="pw-err"></div>
+  </div>
+
+  <div id="dash" style="display:none">
+    <div id="loading" class="loading">資料載入中…</div>
+    <div id="err-load" class="err"></div>
+
+    <div id="content" style="display:none">
+      <div class="summary">
+        <div class="card"><div class="k">Total 回應數</div><div class="v" id="s-total">0</div></div>
+        <div class="card"><div class="k">出席週四</div><div class="v" id="s-attend">0<small id="s-attend-pct"></small></div></div>
+        <div class="card"><div class="k">平均用時</div><div class="v" id="s-avg">00:00</div></div>
+        <div class="card"><div class="k">最近一筆</div><div class="v" id="s-last" style="font-size:1.4rem">—</div></div>
+      </div>
+
+      <section class="block">
+        <h2>各題分布 <small>Distribution per Question</small></h2>
+        <div id="qstats"></div>
+      </section>
+
+      <section class="block">
+        <h2>
+          週四社課出席名單 <small>RSVP for Thursday</small>
+          <span class="toolbar">
+            <button class="btn ghost" id="copy-attend">複製名單</button>
+          </span>
+        </h2>
+        <div id="attend-list" class="attendees"></div>
+      </section>
+
+      <section class="block">
+        <h2>
+          全部回應 <small>All Responses</small>
+          <span class="toolbar">
+            <button class="btn ghost" id="export-csv">匯出 CSV</button>
+            <button class="btn ghost" id="refresh">重新整理</button>
+          </span>
+        </h2>
+        <div class="table-wrap">
+          <table id="resp-table">
+            <thead>
+              <tr>
+                <th>#</th><th>姓名</th>
+                <th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Q5</th>
+                <th>週四</th><th>用時</th><th>送出時間</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, getDocs, query, orderBy }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // ====== ⚠ 請填入跟 quiz.html 同一個專案的 Firebase 設定 ======
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+  // ============================================================
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+  window.__fb = { db, collection, getDocs, query, orderBy };
+</script>
+
+<script>
+const ADMIN_PASSWORD = "leader2025";   // ⚠ 請改成你自己的密碼
+
+const QUESTIONS = [
+  "當你聽到「命運」這個詞時，你直覺上最傾向下列哪一種看法？",
+  "面對生活中的挑戰或不順遂時，你通常會怎麼解讀？",
+  "對於「善有善報、惡有惡報」這樣的因果觀念，你的真實感受是？",
+  "對於「潛意識」的存在，你的看法是？",
+  "對於「靈性」的存在，你的看法是？"
+];
+const OPTION_TEXT = [
+  ["人定勝天","三分天註定，七分靠打拚","冥冥之中還是有力量左右","命運是注定好的"],
+  ["努力中但還看不到效果","環境造成，有點無奈","挫折是心性的考驗","真心想克服就能辦到"],
+  ["心靈安慰","有時準有時不準","大致認同正向循環","深信因果"],
+  ["不太相信","不排斥","相信但不清楚機制","深信潛意識決定一切"],
+  ["不太相信","抱持開放","相信，安靜時能感受","深信靈性是本質"]
+];
+
+/* clock */
+const clockEl = document.getElementById("clock");
+function updateClock(){
+  const d = new Date();
+  clockEl.textContent = String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
+}
+updateClock();
+setInterval(updateClock, 15000);
+
+function fmtDur(ms){
+  const s = Math.floor(ms/1000);
+  return `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
+}
+function fmtTime(ts){
+  if(!ts) return "—";
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+}
+
+/* gate */
+const gate = document.getElementById("gate");
+const dash = document.getElementById("dash");
+const pw = document.getElementById("pw");
+document.getElementById("pw-go").addEventListener("click", tryUnlock);
+pw.addEventListener("keydown", e => { if(e.key === "Enter") tryUnlock(); });
+
+function tryUnlock(){
+  if(pw.value === ADMIN_PASSWORD){
+    sessionStorage.setItem("adm_ok","1");
+    showDash();
+  } else {
+    document.getElementById("pw-err").textContent = "密碼錯誤";
+  }
+}
+function showDash(){
+  gate.style.display = "none";
+  dash.style.display = "block";
+  loadData();
+}
+if(sessionStorage.getItem("adm_ok") === "1") showDash();
+
+/* load */
+let responses = [];
+async function loadData(){
+  const loading = document.getElementById("loading");
+  const errEl = document.getElementById("err-load");
+  const content = document.getElementById("content");
+  loading.style.display = "block";
+  content.style.display = "none";
+  errEl.textContent = "";
+  try {
+    const { db, collection, getDocs, query, orderBy } = window.__fb;
+    const q = query(collection(db, "responses"), orderBy("submitted_at", "desc"));
+    const snap = await getDocs(q);
+    responses = [];
+    snap.forEach(doc => responses.push({ id:doc.id, ...doc.data() }));
+    render();
+    loading.style.display = "none";
+    content.style.display = "block";
+  } catch(e){
+    console.error(e);
+    loading.style.display = "none";
+    errEl.textContent = "讀取失敗：" + (e.code || e.message);
+  }
+}
+document.getElementById("refresh").addEventListener("click", loadData);
+
+function render(){
+  const total = responses.length;
+  const attending = responses.filter(r => r.attending);
+  const avg = total ? responses.reduce((a,r)=> a+(r.duration_ms||0),0)/total : 0;
+  const last = responses[0]?.submitted_at;
+
+  document.getElementById("s-total").innerHTML = total + '<small>份</small>';
+  document.getElementById("s-attend").innerHTML = attending.length + '<small>人</small>';
+  document.getElementById("s-attend-pct").textContent = total ? ` (${Math.round(attending.length/total*100)}%)` : "";
+  document.getElementById("s-avg").textContent = fmtDur(avg);
+  document.getElementById("s-last").textContent = fmtTime(last);
+
+  const wrap = document.getElementById("qstats");
+  wrap.innerHTML = "";
+  QUESTIONS.forEach((qt, qi) => {
+    const counts = {A:0,B:0,C:0,D:0};
+    responses.forEach(r => {
+      const a = r.answers?.[qi];
+      if(counts[a] !== undefined) counts[a]++;
+    });
+    const valid = counts.A + counts.B + counts.C + counts.D;
+    const div = document.createElement("div");
+    div.className = "qstat";
+    div.innerHTML = `
+      <div class="qt"><span class="qnum">${String(qi+1).padStart(2,"0")}</span>${qt}</div>
+      <div class="bars">
+        ${["A","B","C","D"].map((L,i)=>{
+          const c = counts[L];
+          const pct = valid ? c/valid*100 : 0;
+          return `
+          <div class="bar-row">
+            <div class="bar-letter ${L}">${L}</div>
+            <div class="bar-text">${OPTION_TEXT[qi][i]}</div>
+            <div class="bar-wrap"><div class="bar-fill ${L}" style="width:0%"></div></div>
+            <div class="bar-pct">${c} · ${pct.toFixed(0)}%</div>
+          </div>`;
+        }).join("")}
+      </div>
+    `;
+    wrap.appendChild(div);
+  });
+  requestAnimationFrame(() => {
+    wrap.querySelectorAll(".bar-row").forEach(row => {
+      const text = row.querySelector(".bar-pct").textContent;
+      const m = text.match(/(\d+)%$/);
+      if(m) row.querySelector(".bar-fill").style.width = m[1] + "%";
+    });
+  });
+
+  const list = document.getElementById("attend-list");
+  if(attending.length === 0){
+    list.innerHTML = '<div class="empty">尚無人勾選出席</div>';
+  } else {
+    list.innerHTML = attending.map(r => `<span class="chip">${escapeHTML(r.name)}</span>`).join("");
+  }
+
+  const tbody = document.querySelector("#resp-table tbody");
+  if(total === 0){
+    tbody.innerHTML = '<tr><td colspan="10" class="empty">尚無資料</td></tr>';
+    return;
+  }
+  tbody.innerHTML = responses.map((r,i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td><b>${escapeHTML(r.name||"")}</b></td>
+      ${[0,1,2,3,4].map(j => {
+        const a = r.answers?.[j] || "—";
+        return `<td class="ans ${a}">${a}</td>`;
+      }).join("")}
+      <td class="attend">${r.attending ? "✓" : "·"}</td>
+      <td class="dur">${fmtDur(r.duration_ms||0)}</td>
+      <td class="time">${fmtTime(r.submitted_at)}</td>
+    </tr>
+  `).join("");
+}
+
+function escapeHTML(s){
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+document.getElementById("copy-attend").addEventListener("click", async () => {
+  const names = responses.filter(r=>r.attending).map(r=>r.name);
+  if(names.length === 0){ alert("沒有人勾選出席"); return; }
+  try{
+    await navigator.clipboard.writeText(names.join("\n"));
+    const btn = document.getElementById("copy-attend");
+    const orig = btn.textContent;
+    btn.textContent = "已複製 ✓";
+    setTimeout(()=> btn.textContent = orig, 1500);
+  } catch{
+    alert(names.join("\n"));
+  }
+});
+
+document.getElementById("export-csv").addEventListener("click", () => {
+  if(responses.length === 0){ alert("沒有資料"); return; }
+  const header = ["#","姓名","Q1","Q2","Q3","Q4","Q5","週四出席","用時(秒)","送出時間"];
+  const rows = responses.map((r,i)=>[
+    i+1,
+    r.name||"",
+    ...[0,1,2,3,4].map(j => r.answers?.[j] || ""),
+    r.attending ? "是" : "否",
+    Math.round((r.duration_ms||0)/1000),
+    r.submitted_at ? (r.submitted_at.toDate ? r.submitted_at.toDate() : new Date(r.submitted_at)).toLocaleString("zh-TW") : ""
+  ]);
+  const csv = [header, ...rows]
+    .map(row => row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(","))
+    .join("\n");
+  const blob = new Blob(["\uFEFF" + csv], { type:"text/csv;charset=utf-8" });
+  const url  = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `領袖自我修養_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+});
+</script>
+
+</body>
+</html>
