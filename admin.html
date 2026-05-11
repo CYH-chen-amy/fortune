@@ -429,8 +429,8 @@ function render(){
   const last = responses[0]?.submitted_at;
 
   document.getElementById("s-total").innerHTML = total + '<small>份</small>';
-  document.getElementById("s-attend").innerHTML = attending.length + '<small>人</small>';
-  document.getElementById("s-attend-pct").textContent = total ? ` (${Math.round(attending.length/total*100)}%)` : "";
+  const pctStr = total ? ` (${Math.round(attending.length/total*100)}%)` : "";
+  document.getElementById("s-attend").innerHTML = attending.length + '<small>人' + pctStr + '</small>';
   document.getElementById("s-avg").textContent = fmtDur(avg);
   document.getElementById("s-last").textContent = fmtTime(last);
 
