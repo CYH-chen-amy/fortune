@@ -308,6 +308,11 @@
   </div>
 </main>
 
+<!-- 1) declare ready promise BEFORE module loads -->
+<script>
+  window.__fbReady = new Promise(resolve => { window.__fbResolve = resolve; });
+</script>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getFirestore, collection, getDocs, query, orderBy }
@@ -328,6 +333,7 @@
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
   window.__fb = { db, collection, getDocs, query, orderBy };
+  window.__fbResolve(window.__fb);
 </script>
 
 <script>
@@ -399,6 +405,7 @@ async function loadData(){
   content.style.display = "none";
   errEl.textContent = "";
   try {
+    await window.__fbReady;
     const { db, collection, getDocs, query, orderBy } = window.__fb;
     const q = query(collection(db, "responses"), orderBy("submitted_at", "desc"));
     const snap = await getDocs(q);
